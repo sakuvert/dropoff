@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zona Drop Off · DuocUC</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0d0b14;--bg2:#131020;--bg3:#1a1630;
+  --card:#16122a;--card2:#1e1a36;
+  --border:rgba(140,120,255,.12);--border2:rgba(140,120,255,.22);
+  --white:#fff;--ink:#e8e4ff;--ink2:#a098cc;--ink3:#6a6090;
+  --pur:#8b5cf6;--pur2:#a78bfa;--pur3:rgba(139,92,246,.15);
+  --rose:#f43f8e;--rose2:rgba(244,63,142,.15);
+  --amb:#f59e0b;--amb2:rgba(245,158,11,.15);
+  --grn:#10b981;--grn2:rgba(16,185,129,.15);
+  --sky:#38bdf8;--sky2:rgba(56,189,248,.15);
+  --s1:0 2px 16px rgba(0,0,0,.4);
+  --s2:0 8px 32px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);font-family:'Space Grotesk',sans-serif;color:var(--ink);font-size:13px;line-height:1.5;min-height:100vh;overflow-x:hidden}
+
+/* grid bg */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(139,92,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(139,92,246,.04) 1px,transparent 1px);
+  background-size:40px 40px}
+
+/* glow orbs */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 60% 40% at 15% 0%,rgba(139,92,246,.07) 0%,transparent 60%),
+             radial-gradient(ellipse 40% 40% at 85% 100%,rgba(56,189,248,.05) 0%,transparent 55%)}
+
+.wrap{position:relative;z-index:1;max-width:1360px;margin:0 auto;padding:0 28px 60px}
+
+/* ── TOPBAR ── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:0;
+  position:sticky;top:0;z-index:100;
+  background:rgba(13,11,20,.85);backdrop-filter:blur(16px);
+}
+.tb-left{display:flex;align-items:center;gap:14px}
+.tb-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--pur),#6d28d9);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 16px rgba(139,92,246,.35)}
+.tb-title{font-size:15px;font-weight:700;color:var(--white);letter-spacing:-.3px}
+.tb-sub{font-size:10px;color:var(--ink3);margin-top:1px;font-family:'Space Mono',monospace;letter-spacing:.5px}
+.tb-right{display:flex;align-items:center;gap:12px}
+.live-chip{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;border:1px solid rgba(16,185,129,.3);background:rgba(16,185,129,.08);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:var(--grn);letter-spacing:1px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--grn);animation:blink 1.2s ease infinite}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.clk{font-family:'Space Mono',monospace;font-size:12px;color:var(--ink2)}
+.team{display:flex;gap:-4px}
+.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--white);margin-left:-6px;border:2px solid var(--bg);cursor:default;transition:transform .2s}
+.av:first-child{margin-left:0}.av:hover{transform:scale(1.15);z-index:5}
+.avc{background:linear-gradient(135deg,var(--pur),#6d28d9)}
+.ava{background:linear-gradient(135deg,var(--grn),#059669)}
+.avs{background:linear-gradient(135deg,var(--rose),#be185d)}
+
+/* ── HERO HEADER ── */
+.hero{padding:36px 0 28px;border-bottom:1px solid var(--border);margin-bottom:28px}
+.hero-eyebrow{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--pur2);margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.hero-eyebrow::before{content:'';width:20px;height:1px;background:var(--pur2)}
+.hero-title{font-size:36px;font-weight:700;color:var(--white);line-height:1.1;margin-bottom:8px;letter-spacing:-.5px}
+.hero-title em{font-style:italic;background:linear-gradient(90deg,var(--pur2),var(--sky));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:13px;color:var(--ink3);margin-bottom:20px}
+.hero-meta{display:flex;gap:8px;flex-wrap:wrap}
+.meta-pill{padding:5px 14px;border-radius:20px;background:var(--card);border:1px solid var(--border);font-size:11px;color:var(--ink2);font-family:'Space Mono',monospace;font-weight:700;letter-spacing:.5px}
+
+/* ── CONTROLS ── */
+.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+.cbtn{padding:8px 18px;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;cursor:pointer;border:1px solid;transition:all .18s;letter-spacing:.2px}
+.cb-primary{background:var(--pur3);border-color:rgba(139,92,246,.4);color:var(--pur2)}
+.cb-primary:hover{background:rgba(139,92,246,.25);transform:translateY(-1px)}
+.cb-danger{background:var(--rose2);border-color:rgba(244,63,142,.4);color:var(--rose)}
+.cb-danger:hover{background:rgba(244,63,142,.25);transform:translateY(-1px)}
+.cb-success{background:var(--grn2);border-color:rgba(16,185,129,.4);color:var(--grn)}
+.cb-success:hover{background:rgba(16,185,129,.25);transform:translateY(-1px)}
+.speed-ctl{display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:8px;background:var(--card);border:1px solid var(--border)}
+.speed-ctl label{font-size:11px;color:var(--ink3);font-family:'Space Mono',monospace}
+.speed-ctl select{background:none;border:none;outline:none;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--pur2);cursor:pointer}
+#sim-st{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:1px}
+
+/* ── KPIs ── */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;cursor:pointer;position:relative;overflow:hidden;transition:border-color .2s,transform .2s cubic-bezier(.34,1.5,.64,1)}
+.kpi:hover{border-color:var(--border2);transform:translateY(-3px)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:14px 14px 0 0}
+.kpi.rose::before{background:linear-gradient(90deg,var(--rose),rgba(244,63,142,0))}
+.kpi.amb::before{background:linear-gradient(90deg,var(--amb),rgba(245,158,11,0))}
+.kpi.grn::before{background:linear-gradient(90deg,var(--grn),rgba(16,185,129,0))}
+.kpi.pur::before{background:linear-gradient(90deg,var(--pur),rgba(139,92,246,0))}
+.kpi.sky::before{background:linear-gradient(90deg,var(--sky),rgba(56,189,248,0))}
+.kpi-label{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.kpi.rose .kpi-label{color:var(--rose)}.kpi.amb .kpi-label{color:var(--amb)}
+.kpi.grn .kpi-label{color:var(--grn)}.kpi.pur .kpi-label{color:var(--pur2)}
+.kpi.sky .kpi-label{color:var(--sky)}
+.kpi-val{font-size:38px;font-weight:700;line-height:1;margin-bottom:5px;color:var(--white);transition:transform .15s}
+.kpi:hover .kpi-val{transform:scale(1.04)}
+.kpi-sub{font-size:11px;color:var(--ink3)}
+.kpi-trend{font-family:'Space Mono',monospace;font-size:10px;margin-top:6px;font-weight:700}
+.tu{color:var(--rose)}.td{color:var(--grn)}.ts{color:var(--ink3)}
+
+/* ── SECTION LABEL ── */
+.sec{display:flex;align-items:center;gap:12px;margin:0 0 14px}
+.sec-lbl{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);white-space:nowrap}
+.sec-line{flex:1;height:1px;background:var(--border)}
+
+/* ── CARDS ── */
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.g12{display:grid;grid-template-columns:1fr 1.6fr;gap:16px;margin-bottom:24px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;transition:border-color .2s}
+.card.alarm{border-color:rgba(244,63,142,.5);box-shadow:0 0 0 1px rgba(244,63,142,.2)}
+.card.warn{border-color:rgba(245,158,11,.4)}
+.ct{font-size:13px;font-weight:600;color:var(--white);margin-bottom:3px}
+.cs{font-size:10px;color:var(--ink3);font-family:'Space Mono',monospace;margin-bottom:16px;letter-spacing:.3px}
+.ch{position:relative;overflow:hidden}.ch canvas{display:block}
+
+/* ── PROGRESS ── */
+.plist{display:flex;flex-direction:column;gap:13px}
+.prow-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.pname{font-size:12px;color:var(--ink2)}
+.pval{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--white)}
+.pbar{height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;cursor:pointer}
+.pfill{height:100%;border-radius:3px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+
+/* ── LOG ── */
+.log{max-height:210px;overflow-y:auto;display:flex;flex-direction:column;gap:0}
+.log::-webkit-scrollbar{width:3px}.log::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.log-row{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--border);font-size:11px}
+.log-row:last-child{border:none}
+.log-t{font-family:'Space Mono',monospace;font-size:10px;color:var(--ink3);white-space:nowrap;flex-shrink:0;width:42px}
+.ltag{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;flex-shrink:0;letter-spacing:.5px}
+.lc{background:rgba(244,63,142,.15);color:var(--rose)}.lw{background:rgba(245,158,11,.15);color:var(--amb)}
+.lo{background:rgba(16,185,129,.15);color:var(--grn)}.li{background:rgba(139,92,246,.15);color:var(--pur2)}
+.log-msg{color:var(--ink2);line-height:1.4}
+
+/* ── MATRIX ── */
+.mx-container{display:flex;gap:16px;align-items:flex-start}
+.mx-y-axis{display:flex;flex-direction:column;justify-content:space-between;height:300px;padding:4px 0;flex-shrink:0}
+.mx-y-lbl{font-family:'Space Mono',monospace;font-size:9px;color:var(--ink3);text-align:right;width:60px;font-weight:700}
+.mx-center{flex:1}
+.mx-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+.mxc{border-radius:8px;min-height:56px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px;padding:5px;cursor:default;position:relative;transition:transform .18s cubic-bezier(.34,1.6,.64,1)}
+.mxc:has(.mxd):hover{transform:scale(1.05);z-index:5;box-shadow:var(--s2)}
+/* zone gradients */
+.z1{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2)}
+.z2{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2)}
+.z3{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3)}
+.z4{background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3)}
+.z5{background:rgba(244,63,142,.12);border:1px solid rgba(244,63,142,.35)}
+.mmag{position:absolute;bottom:3px;right:5px;font-family:'Space Mono',monospace;font-size:9px;color:rgba(255,255,255,.18);font-weight:700}
+.mxd{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:var(--white);
+  border:2px solid rgba(255,255,255,.2);
+  cursor:pointer;transition:transform .15s cubic-bezier(.34,1.8,.64,1),box-shadow .15s;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+.mxd:hover{transform:scale(1.3);box-shadow:0 4px 16px rgba(0,0,0,.4)}
+.dr{background:linear-gradient(135deg,var(--rose),#be185d)}
+.do{background:linear-gradient(135deg,var(--amb),#d97706)}
+.dg{background:linear-gradient(135deg,var(--grn),#059669)}
+.mx-x-labels{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:5px}
+.mxxl{text-align:center;font-family:'Space Mono',monospace;font-size:9px;color:var(--ink3);font-weight:700}
+.mx-x-axis-lbl{text-align:center;font-family:'Space Mono',monospace;font-size:9px;color:var(--ink3);margin-top:4px;letter-spacing:1px;text-transform:uppercase}
+.mx-zone-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
+.mzl{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--ink2)}
+.mzd{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.mx-prob-axis-wrap{display:flex;align-items:center;justify-content:center;padding-right:0;padding-bottom:30px;flex-shrink:0}
+.mx-prob-txt{writing-mode:vertical-rl;transform:rotate(180deg);font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);font-weight:700}
+/* detail card */
+.dp{background:var(--card2);border:1px solid var(--border);border-radius:10px;margin-top:14px;overflow:hidden}
+.dp-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}
+.dp-ey{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--pur2);margin-bottom:3px}
+.dp-name{font-size:14px;font-weight:600;color:var(--white);line-height:1.3}
+.dp-pills{display:flex;gap:7px}
+.dp-pill{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 12px;text-align:center;min-width:56px}
+.dp-pl{font-family:'Space Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:4px}
+.dp-pv{font-size:19px;font-weight:700;line-height:1}
+.dp-body{display:grid;grid-template-columns:1fr 1fr}
+.dp-col{padding:14px 16px}
+.dp-col+.dp-col{border-left:1px solid var(--border)}
+.dp-sh{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.dp-desc{font-size:12px;color:var(--ink2);line-height:1.65;border-left:2px solid var(--pur);padding-left:10px;margin-bottom:12px}
+.dp-mit{display:flex;gap:7px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px;color:var(--ink2);line-height:1.5}
+.dp-mit:last-child{border:none}
+.dp-mn{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:var(--pur2);flex-shrink:0;padding-top:1px}
+.dp-cont{background:var(--rose2);border:1px solid rgba(244,63,142,.3);border-radius:8px;padding:11px;margin-top:10px}
+.dp-ct{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--rose);margin-bottom:5px}
+.dp-cont p{font-size:11px;color:var(--ink2);line-height:1.6}
+.dp-empty{padding:24px;text-align:center;color:var(--ink3);font-size:12px;font-family:'Space Mono',monospace}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{padding:8px 12px;text-align:left;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink3);border-bottom:1px solid var(--border);cursor:pointer;transition:color .15s;white-space:nowrap}
+thead th:hover{color:var(--pur2)}
+tbody tr{border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+tbody tr:hover{background:var(--card2)}.tbody tr:last-child{border:none}
+td{padding:10px 12px;font-size:12px;vertical-align:middle}
+.tid{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:var(--pur2)}
+.tname{font-weight:500;color:var(--white);margin-bottom:1px}.tcat{font-size:10px;color:var(--ink3)}
+.bdg{display:inline-flex;padding:2px 8px;border-radius:20px;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;border:1px solid;letter-spacing:.5px;white-space:nowrap}
+.br{background:var(--rose2);color:var(--rose);border-color:rgba(244,63,142,.3)}
+.bo{background:var(--amb2);color:var(--amb);border-color:rgba(245,158,11,.3)}
+.bg{background:var(--grn2);color:var(--grn);border-color:rgba(16,185,129,.3)}
+.chip{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;border:1px solid}
+.chr{background:var(--rose2);color:var(--rose);border-color:rgba(244,63,142,.3)}
+.cho{background:var(--amb2);color:var(--amb);border-color:rgba(245,158,11,.3)}
+.chg{background:var(--grn2);color:var(--grn);border-color:rgba(16,185,129,.3)}
+.stag{padding:2px 8px;border-radius:5px;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;display:inline-block;letter-spacing:.5px;border:1px solid}
+.sMitigar{background:rgba(139,92,246,.15);color:var(--pur2);border-color:rgba(139,92,246,.3)}
+.sEvitar{background:rgba(245,158,11,.12);color:var(--amb);border-color:rgba(245,158,11,.3)}
+.sTransferir{background:rgba(56,189,248,.12);color:var(--sky);border-color:rgba(56,189,248,.3)}
+.sAceptar{background:rgba(16,185,129,.12);color:var(--grn);border-color:rgba(16,185,129,.3)}
+
+/* ── TOAST NOTIFICATIONS ── */
+#toastArea{position:fixed;top:72px;right:20px;z-index:9000;display:flex;flex-direction:column;gap:8px;width:320px;pointer-events:none}
+.toast{
+  background:var(--card2);border-radius:12px;
+  border:1px solid var(--border2);
+  box-shadow:var(--s2);
+  padding:13px 15px;pointer-events:all;
+  transform:translateX(340px) scale(.96);opacity:0;
+  transition:transform .38s cubic-bezier(.34,1.3,.64,1),opacity .28s;
+  position:relative;overflow:hidden;cursor:pointer;
+}
+.toast.in{transform:translateX(0) scale(1);opacity:1}
+.toast.out{transform:translateX(340px) scale(.96);opacity:0;transition:transform .22s ease,opacity .18s}
+.toast-prog{position:absolute;bottom:0;left:0;height:2px;transition:width linear;border-radius:0 0 0 0}
+.toast-top{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.toast-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px}
+.toast-title{font-size:12px;font-weight:600;flex:1;color:var(--white)}
+.toast-time{font-family:'Space Mono',monospace;font-size:9px;color:var(--ink3)}
+.toast-body{font-size:11px;color:var(--ink2);line-height:1.5;padding-left:32px}
+.toast-rid{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;margin-top:5px;padding-left:32px}
+/* toast types */
+.t-rose .toast-icon{background:var(--rose2)}
+.t-rose .toast-prog{background:var(--rose)}
+.t-rose .toast-rid{color:var(--rose)}
+.t-amb  .toast-icon{background:var(--amb2)}
+.t-amb  .toast-prog{background:var(--amb)}
+.t-amb  .toast-rid{color:var(--amb)}
+.t-grn  .toast-icon{background:var(--grn2)}
+.t-grn  .toast-prog{background:var(--grn)}
+.t-grn  .toast-rid{color:var(--grn)}
+.t-pur  .toast-icon{background:var(--pur3)}
+.t-pur  .toast-prog{background:var(--pur)}
+.t-pur  .toast-rid{color:var(--pur2)}
+
+/* ── MODAL ── */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);z-index:500;display:none;align-items:center;justify-content:center;padding:24px}
+.ov.open{display:flex;animation:ovIn .16s ease}
+@keyframes ovIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--card);border-radius:16px;width:100%;max-width:620px;max-height:90vh;overflow-y:auto;padding:28px;position:relative;box-shadow:0 32px 64px rgba(0,0,0,.6);border:1px solid var(--border2);animation:moIn .28s cubic-bezier(.34,1.4,.64,1)}
+@keyframes moIn{from{opacity:0;transform:scale(.94) translateY(14px)}to{opacity:1;transform:none}}
+.modal::-webkit-scrollbar{width:4px}.modal::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.mcls{position:absolute;top:16px;right:16px;width:28px;height:28px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);color:var(--ink3);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.mcls:hover{background:var(--rose2);color:var(--rose);border-color:rgba(244,63,142,.4);transform:rotate(90deg)}
+.mo-ey{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--pur2);margin-bottom:4px}
+.mo-name{font-size:20px;font-weight:700;color:var(--white);margin-bottom:18px;line-height:1.25}
+.mo-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px}
+.mo-st{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.mo-sl{font-family:'Space Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--ink3);margin-bottom:6px}
+.mo-sv{font-size:24px;font-weight:700;line-height:1}
+.mo-ss{font-size:10px;color:var(--ink3);margin-top:3px;font-weight:600}
+.mo-h{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-bottom:8px;margin-top:16px}
+.mo-desc{background:var(--bg3);border-left:2px solid var(--pur);padding:11px 13px;font-size:12px;color:var(--ink2);line-height:1.7}
+.mo-mit{padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--ink2);line-height:1.55}
+.mo-mit:last-child{border:none}
+.mo-mn{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:var(--pur2)}
+.mo-cont{background:var(--rose2);border:1px solid rgba(244,63,142,.3);border-radius:8px;padding:13px;margin-top:12px}
+.mo-ct{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--rose);margin-bottom:6px}
+.mo-cont p{font-size:12px;color:var(--ink2);line-height:1.65}
+.mo-ft{display:flex;align-items:center;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+
+/* anims */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.ani{animation:fadeUp .45s cubic-bezier(.4,0,.2,1) both}
+.kpi{animation:fadeUp .45s cubic-bezier(.4,0,.2,1) both}
+.kpi:nth-child(1){animation-delay:.04s}.kpi:nth-child(2){animation-delay:.08s}
+.kpi:nth-child(3){animation-delay:.12s}.kpi:nth-child(4){animation-delay:.16s}
+
+@media(max-width:1000px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .g3,.g2,.g12{grid-template-columns:1fr}
+  .dp-body{grid-template-columns:1fr}
+  .dp-col+.dp-col{border-left:none;border-top:1px solid var(--border)}
+}
+</style>
+</head>
+<body>
+
+<!-- TOAST AREA -->
+<div id="toastArea"></div>
+
+<div class="wrap">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-left">
+    <div class="tb-icon">🎓</div>
+    <div>
+      <div class="tb-title"> Zona Drop Off</div>
+      <div class="tb-sub">DUOCUC PUERTO MONTT · GPY7111 · 2026</div>
+    </div>
+  </div>
+  <div class="tb-right">
+    <div class="live-chip"><span class="live-dot"></span>EN VIVO</div>
+    <div class="clk" id="clk">--:--:--</div>
+    <div class="team">
+      <div class="av avc" title="Catalina Núñez">CN</div>
+      <div class="av ava" title="Alan Vega">AV</div>
+      <div class="av avs" title="Cristian Solís">CS</div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero ani">
+  <div class="hero-eyebrow">Gestión de riesgos · Plan de mitigación</div>
+  <div class="hero-title">Control <em>en tiempo real</em><br>Sistema Drop Off</div>
+  <div class="hero-sub">Colegio Genios Traviesos · Sistema de Cámaras IA · Puerto Montt</div>
+  <div class="hero-meta">
+    <div class="meta-pill">Presupuesto: 100 UF</div>
+    <div class="meta-pill">Plazo: 2 meses</div>
+    <div class="meta-pill">2 cámaras IA</div>
+    <div class="meta-pill">Java 8</div>
+    <div class="meta-pill">15 riesgos identificados</div>
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls ani" style="animation-delay:.1s">
+  <button class="cbtn cb-primary" id="btn-pause" onclick="togglePause()">⏸ Pausar</button>
+  <button class="cbtn cb-danger" onclick="triggerIncident()">Simular incidente</button>
+  <button class="cbtn cb-success" onclick="triggerRecovery()">Simular recuperación</button>
+  <div class="speed-ctl">
+    <label>Velocidad:</label>
+    <select id="speed" onchange="changeSpeed()">
+      <option value="3000">Lenta</option>
+      <option value="1500" selected>Normal</option>
+      <option value="700">Rápida</option>
+    </select>
+  </div>
+  <span id="sim-st" style="color:var(--grn)">● SIMULANDO</span>
+</div>
+
+<!-- KPIs -->
+<div class="sec ani" style="animation-delay:.15s"><div class="sec-lbl">Indicadores en tiempo real</div><div class="sec-line"></div></div>
+<div class="kpis">
+  <div class="kpi rose">
+    <div class="kpi-label">Riesgos críticos</div>
+    <div class="kpi-val" id="kv-crit">9</div>
+    <div class="kpi-sub">Magnitud ≥ 12 · Acción requerida</div>
+    <div class="kpi-trend ts" id="kt-crit">● estable</div>
+  </div>
+  <div class="kpi amb">
+    <div class="kpi-label">Precisión IA</div>
+    <div class="kpi-val" id="kv-ia">72%</div>
+    <div class="kpi-sub">Meta: 95% — RNF-04</div>
+    <div class="kpi-trend tu" id="kt-ia">▲ por debajo</div>
+  </div>
+  <div class="kpi grn">
+    <div class="kpi-label">Uptime red colegio</div>
+    <div class="kpi-val" id="kv-net">88%</div>
+    <div class="kpi-sub">Red interna · LTE en espera</div>
+    <div class="kpi-trend ts" id="kt-net">● estable</div>
+  </div>
+  <div class="kpi pur">
+    <div class="kpi-label">Presupuesto usado</div>
+    <div class="kpi-val" id="kv-budget">32 UF</div>
+    <div class="kpi-sub">De 100 UF disponibles</div>
+    <div class="kpi-trend ts" id="kt-budget">● bajo control</div>
+  </div>
+  <div class="kpi sky" style="--sky:#38bdf8">
+    <div class="kpi-label">Patentes en BD</div>
+    <div class="kpi-val" id="kv-bd" style="color:var(--sky)">45%</div>
+    <div class="kpi-sub">Carga inicial pendiente</div>
+    <div class="kpi-trend tu" id="kt-bd">▲ completando</div>
+  </div>
+  <div class="kpi rose">
+    <div class="kpi-label">Apoderados informados</div>
+    <div class="kpi-val" id="kv-legal">0%</div>
+    <div class="kpi-sub">Ley 19.628 · Pendiente</div>
+    <div class="kpi-trend tu" id="kt-legal">! Acción urgente</div>
+  </div>
+  <div class="kpi pur">
+    <div class="kpi-label">Avance proyecto</div>
+    <div class="kpi-val" id="kv-prog">25%</div>
+    <div class="kpi-sub">Sprint 1 en curso</div>
+    <div class="kpi-trend ts" id="kt-prog">● en curso</div>
+  </div>
+  <div class="kpi grn">
+    <div class="kpi-label">Con contingencia</div>
+    <div class="kpi-val">100%</div>
+    <div class="kpi-sub">15 de 15 riesgos</div>
+    <div class="kpi-trend td">✓ completo</div>
+  </div>
+</div>
+
+<!-- CHARTS ROW 1 -->
+<div class="sec ani" style="animation-delay:.2s"><div class="sec-lbl">Análisis de riesgos</div><div class="sec-line"></div></div>
+<div class="g3 ani" style="animation-delay:.22s">
+  <div class="card" id="cc-bar">
+    <div class="ct">Magnitud por riesgo</div>
+    <div class="cs">P × I · clic en barra para ver plan</div>
+    <div class="ch" style="height:170px"><canvas id="barC"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="ct">Riesgos por categoría</div>
+    <div class="cs">Distribución RBS</div>
+    <div class="ch" style="height:170px"><canvas id="doC"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="ct">Indicadores · progreso</div>
+    <div class="cs">Estado actual vs meta</div>
+    <div class="plist" id="plist"></div>
+  </div>
+</div>
+
+<!-- MATRIX + LOG -->
+<div class="sec ani" style="animation-delay:.3s"><div class="sec-lbl">Matriz probabilidad × impacto</div><div class="sec-line"></div></div>
+<div class="g12 ani" style="animation-delay:.32s">
+  <div class="card" id="cc-mx">
+    <div class="ct">¿Dónde está cada riesgo?</div>
+    <div class="cs">Clic en un círculo para ver descripción, mitigaciones y contingencia</div>
+    <!-- Matrix layout with axis labels -->
+    <div style="display:flex;gap:10px;align-items:flex-start">
+      <!-- Y axis -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+        <div style="writing-mode:vertical-rl;transform:rotate(180deg);font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-bottom:8px;padding-bottom:28px">Probabilidad</div>
+      </div>
+      <div style="flex:1">
+        <!-- Row labels + cells -->
+        <div id="mxFull"></div>
+        <!-- X labels -->
+        <div id="mxXlbls" style="margin-top:4px"></div>
+        <div style="text-align:center;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-top:3px">Impacto</div>
+      </div>
+    </div>
+    <div class="mx-zone-legend">
+      <div class="mzl"><div class="mzd" style="background:var(--grn);opacity:.5"></div>Bajo (1–5)</div>
+      <div class="mzl"><div class="mzd" style="background:var(--amb);opacity:.5"></div>Medio (6–11)</div>
+      <div class="mzl"><div class="mzd" style="background:rgba(244,63,142,.6)"></div>Crítico (12+)</div>
+      <div style="margin-left:auto;font-family:'Space Mono',monospace;font-size:9px;color:var(--ink3)">El número = ID del riesgo (sin "R-")</div>
+    </div>
+    <div class="dp" id="matDp"><div class="dp-empty">Selecciona un riesgo para ver el plan completo</div></div>
+  </div>
+  <div class="card">
+    <div class="ct">Registro de eventos</div>
+    <div class="cs">Actividad en tiempo real</div>
+    <div class="log" id="logBox"></div>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div class="sec ani" style="animation-delay:.4s"><div class="sec-lbl">Registro completo · 15 riesgos</div><div class="sec-line"></div></div>
+<div class="card ani" style="animation-delay:.42s">
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>ID</th><th>Riesgo</th><th>Cat.</th>
+        <th>Prob.</th><th>Impacto</th><th>Magnitud</th>
+        <th>Estrategia</th><th>Responsable</th>
+      </tr></thead>
+      <tbody id="tblBody"></tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<!-- MODAL -->
+<div class="ov" id="ov" onclick="closeMoOut(event)">
+  <div class="modal"><button class="mcls" onclick="closeM()">✕</button><div id="mob"></div></div>
+</div>
+
+<script>
+const R=[
+  {id:'R-01',name:'Cámaras IA incompatibles con Java 8',cat:'Técnico · Integración',prob:3,pL:'Media',imp:5,iL:'Muy alto',mag:15,est:'Mitigar',resp:'Catalina Núñez',rc:'CN',rcBg:'#8b5cf6',fecha:'25/05',desc:'El SDK de la cámara IA puede estar diseñado para Java 11+. Sin wrapper compatible, el equipo debe desarrollar una capa de adaptación o cambiar de proveedor.',mits:['Mitigación 1, previa: Validar compatibilidad del SDK con Java 8 en Semana 1 antes de comprar.','Mitigación 2: Solicitar prueba técnica con Java 8 como condición de compra.','Mitigación 3: Prototipo mínimo de integración en Sprint 1.'],cont:'Desarrollar capa adaptadora (wrapper) en Java 8 que consuma la API REST del SDK. Costo: 15 UF.'},
+  {id:'R-02',name:'Sistema lento en procesar imágenes',cat:'Técnico · Software',prob:3,pL:'Media',imp:4,iL:'Alto',mag:12,est:'Mitigar',resp:'Catalina Núñez',rc:'CN',rcBg:'#8b5cf6',fecha:'28/05',desc:'Si el servidor no tiene potencia suficiente, el procesamiento puede superar 2 minutos, invalidando el RNF-06.',mits:['Mitigación 1, previa: Pruebas de rendimiento con el servidor del colegio en Sprint 1.','Mitigación 2: Optimizar algoritmo para procesar en resolución reducida.'],cont:'Procesar imágenes en servidor externo (nube) mientras se mejora el hardware. Costo: 8 UF/mes.'},
+  {id:'R-03',name:'Fallas de seguridad y datos expuestos',cat:'Técnico · Seguridad',prob:2,pL:'Baja',imp:5,iL:'Muy alto',mag:10,est:'Mitigar',resp:'Alan Vega',rc:'AV',rcBg:'#10b981',fecha:'10/06',desc:'Sin cifrado ni segmentación de red, una brecha expone al colegio a sanciones bajo Ley N°19.628.',mits:['Mitigación 1, previa: Cifrado AES-256 en la base de datos desde el inicio.','Mitigación 2: Segmentar red del colegio con VLAN.','Mitigación 3: Pruebas de penetración antes del despliegue.'],cont:'Desconectar sistema inmediatamente y activar protocolo de eliminación de datos. Costo: 5 UF.'},
+  {id:'R-04',name:'El proyecto supera el presupuesto de 100 UF',cat:'Gestión · Costo',prob:3,pL:'Media',imp:5,iL:'Muy alto',mag:15,est:'Evitar',resp:'Cristian Solís',rc:'CS',rcBg:'#f43f8e',fecha:'20/05',desc:'El presupuesto cubre hardware especializado y desarrollo. Cualquier imprevisto puede agotar los fondos.',mits:['Mitigación 1, previa: Presupuesto desglosado con reserva del 10% (10 UF).','Mitigación 2: Cotizar hardware en proveedores nacionales.','Mitigación 3: Congelar alcance en Semana 1.'],cont:'Renegociar con el colegio o reducir funcionalidades secundarias. Reserva: 10 UF.'},
+  {id:'R-05',name:'El proyecto no termina en dos meses',cat:'Gestión · Tiempo',prob:3,pL:'Media',imp:5,iL:'Muy alto',mag:15,est:'Evitar',resp:'Catalina Núñez',rc:'CN',rcBg:'#8b5cf6',fecha:'15/05',desc:'El plazo de 2 meses es inamovible. Cualquier bloqueo técnico puede comprometer la entrega.',mits:['Mitigación 1, previa: Cronograma con buffer del 20% por sprint.','Mitigación 2: Resolver dependencias externas en Semana 1.','Mitigación 3: Seguimiento semanal.'],cont:'Si se acumulan +5 días de retraso, activar modo de trabajo intensivo y negociar entrega parcial.'},
+  {id:'R-06',name:'Cámaras fallan por lluvia o niebla',cat:'Técnico · Hardware',prob:4,pL:'Alta',imp:4,iL:'Alto',mag:16,est:'Mitigar',resp:'Cristian Solís',rc:'CS',rcBg:'#f43f8e',fecha:'18/05',desc:'Puerto Montt tiene lluvia gran parte del año. Sin IP66, las cámaras se deteriorarán. Mayor magnitud del proyecto (16).',mits:['Mitigación 1, previa: Exigir certificación IP66 como requisito de compra.','Mitigación 2: Carcasas protectoras adicionales en la zona drop off.','Mitigación 3: Validar con lluvia simulada antes del despliegue.'],cont:'Cobertura manual en el acceso hasta que se repare la cámara. Costo: 12 UF.'},
+  {id:'R-07',name:'Cámaras llegan tarde al proyecto',cat:'Externo · Proveedores',prob:3,pL:'Media',imp:3,iL:'Media',mag:9,est:'Transferir',resp:'Alan Vega',rc:'AV',rcBg:'#10b981',fecha:'18/05',desc:'Retraso en hardware impide iniciar integración HW-SW. Una semana de retraso puede ser crítica.',mits:['Mitigación 1, previa: Pedido con 3 semanas de anticipación al Sprint 2.','Mitigación 2: Cláusula de penalización por retraso en el contrato.'],cont:'Adelantar desarrollo con simulador de cámara. Sin costo adicional.'},
+  {id:'R-08',name:'Incumplimiento Ley N°19.628',cat:'Externo · Regulatorio',prob:2,pL:'Baja',imp:5,iL:'Muy alto',mag:10,est:'Aceptar',resp:'Cristian Solís',rc:'CS',rcBg:'#f43f8e',fecha:'15/06',desc:'La Ley N°19.628 exige informar a los apoderados antes de recopilar datos personales.',mits:['Mitigación 1, previa: Circular formal a apoderados antes del despliegue.','Mitigación 2: Incluir propósito, datos y responsable en la circular.','Mitigación 3: Confirmación de recepción del colegio.'],cont:'Si hay reclamo formal, suspender el sistema y asesorarse con abogado. Costo: 5 UF.'},
+  {id:'R-09',name:'Cambios en requerimientos a mitad del desarrollo',cat:'Gestión · Alcance',prob:3,pL:'Media',imp:3,iL:'Media',mag:9,est:'Mitigar',resp:'Catalina Núñez',rc:'CN',rcBg:'#8b5cf6',fecha:'25/05',desc:'El colegio es cliente sin experiencia TI. En 2 meses y 100 UF, cualquier cambio de alcance puede ser catastrófico.',mits:['Mitigación 1, previa: Congelar alcance en Semana 1 con acta firmada.','Mitigación 2: Control de cambios formal con aprobación escrita.'],cont:'Dos alternativas: eliminar otra funcionalidad o cotizarlo como trabajo adicional.'},
+  {id:'R-10',name:'Patentes de apoderados no registradas en BD',cat:'Técnico · Base de datos',prob:4,pL:'Alta',imp:3,iL:'Media',mag:12,est:'Mitigar',resp:'Alan Vega',rc:'AV',rcBg:'#10b981',fecha:'22/05',desc:'Carga inicial incompleta genera falsos positivos y no identifica infracciones reales.',mits:['Mitigación 1, previa: Completar carga inicial antes del Sprint 3.','Mitigación 2: Formulario enviado a apoderados.','Mitigación 3: Proceso de actualización continua.'],cont:'Registro manual en portería hasta completar la base de datos. Sin costo adicional.'},
+  {id:'R-11',name:'Red del colegio falla y el sistema se detiene',cat:'Organizacional · Infraestructura',prob:3,pL:'Media',imp:4,iL:'Alto',mag:12,est:'Mitigar',resp:'Cristian Solís',rc:'CS',rcBg:'#f43f8e',fecha:'01/06',desc:'El sistema depende 100% de la red interna. Sin conectividad no hay detección ni notificación.',mits:['Mitigación 1, previa: Evaluar infraestructura de red en Semana 1.','Mitigación 2: Configurar conexión redundante LTE/4G como respaldo.'],cont:'El sistema conmuta automáticamente a LTE de respaldo. Costo: 2 UF/mes.'},
+  {id:'R-12',name:'Apoderados rechazan el sistema de vigilancia',cat:'Externo · Social',prob:3,pL:'Media',imp:4,iL:'Alto',mag:12,est:'Mitigar',resp:'Cristian Solís',rc:'CS',rcBg:'#f43f8e',fecha:'20/06',desc:'Resistencia organizada puede obligar a la dirección a suspender el sistema ya instalado.',mits:['Mitigación 1, previa: Reunión informativa con apoderados antes del despliegue.','Mitigación 2: Comunicar el sistema como solución al taco vehicular.'],cont:'Reunión de mediación y opción de apelación a notificaciones incorrectas.'},
+  {id:'R-13',name:'Precisión IA inferior al 95% (RNF-04)',cat:'Técnico · Calidad/IA',prob:3,pL:'Media',imp:5,iL:'Muy alto',mag:15,est:'Mitigar',resp:'Catalina Núñez',rc:'CN',rcBg:'#8b5cf6',fecha:'28/05',desc:'RNF-04 exige 95% de precisión. Sin el umbral, el sistema envía alertas erróneas y pierde credibilidad.',mits:['Mitigación 1, previa: Entrenar modelo con patentes chilenas en condiciones de lluvia.','Mitigación 2: Pruebas semanales en Sprint 2 con umbral del 95%.','Mitigación 3: Revisión manual para casos de baja confianza.'],cont:'Doble verificación con ambas cámaras para aumentar tasa de acierto. Sin costo adicional.'},
+  {id:'R-14',name:'Lente de cámara dañado sin mantención',cat:'Técnico · Hardware',prob:2,pL:'Baja',imp:4,iL:'Alto',mag:8,est:'Mitigar',resp:'Cristian Solís',rc:'CS',rcBg:'#f43f8e',fecha:'01/07',desc:'Sin mantención, el deterioro del lente pasará desapercibido. El clima de Puerto Montt acelera el desgaste.',mits:['Mitigación 1, previa: Mantención preventiva mensual.','Mitigación 2: Alertas automáticas cuando la calidad de imagen caiga.'],cont:'Cobertura con la segunda cámara mientras se repara. Costo: 3 UF.'},
+  {id:'R-15',name:'Programador clave abandona el proyecto',cat:'Gestión · RR.HH.',prob:2,pL:'Baja',imp:5,iL:'Muy alto',mag:10,est:'Mitigar',resp:'Alan Vega',rc:'AV',rcBg:'#10b981',fecha:'05/06',desc:'Solo una persona maneja Java 8. Si sale, no hay tiempo para incorporar a alguien nuevo en 2 meses.',mits:['Mitigación 1, previa: Documentar código en Wiki (Google Drive) cada sprint.','Mitigación 2: Sesiones de transferencia de conocimiento Java 8.','Mitigación 3: Distribuir conocimiento entre dos integrantes.'],cont:'Continuar con documentación disponible y evaluar soporte externo. Costo: 10 UF.'},
+];
+
+// ── CLOCK ──────────────────────────────────
+setInterval(()=>{document.getElementById('clk').textContent=new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit',second:'2-digit'})},1000);
+
+// ── CHARTS ─────────────────────────────────
+const tip={backgroundColor:'#16122a',titleColor:'#fff',bodyColor:'#a098cc',borderColor:'rgba(140,120,255,.2)',borderWidth:1,cornerRadius:8,padding:10,titleFont:{family:"'Space Mono',monospace",size:10},bodyFont:{family:"'Space Grotesk',sans-serif",size:12}};
+Chart.defaults.font={family:"'Space Grotesk',sans-serif"};Chart.defaults.color='#6a6090';
+function cv(id,h){const c=document.getElementById(id);c.width=c.parentElement.clientWidth-24||380;c.height=h;return c}
+
+const sorted=[...R].sort((a,b)=>b.mag-a.mag);
+const barCh=new Chart(cv('barC',170),{type:'bar',
+  data:{labels:sorted.map(r=>r.id),datasets:[{data:sorted.map(r=>r.mag),
+    backgroundColor:sorted.map(r=>r.mag>=12?'rgba(244,63,142,.5)':r.mag>=6?'rgba(245,158,11,.5)':'rgba(16,185,129,.5)'),
+    hoverBackgroundColor:sorted.map(r=>r.mag>=12?'#f43f8e':r.mag>=6?'#f59e0b':'#10b981'),
+    borderRadius:4,borderSkipped:false,borderWidth:0}]},
+  options:{responsive:false,onClick(_,els){if(els[0])openM(sorted[els[0].index].id)},
+    plugins:{legend:{display:false},tooltip:{...tip,callbacks:{label:c=>` Magnitud: ${c.raw}`}}},
+    scales:{x:{grid:{display:false},ticks:{font:{size:9,weight:'700',family:"'Space Mono',monospace"},color:'#6a6090'}},
+      y:{grid:{color:'rgba(140,120,255,.06)'},min:0,max:20,ticks:{stepSize:5,font:{size:9}}}},
+    animation:{duration:400}}
+});
+
+const cats={};R.forEach(r=>{const c=r.cat.split('·')[0].trim();cats[c]=(cats[c]||0)+1});
+new Chart(cv('doC',170),{type:'doughnut',
+  data:{labels:Object.keys(cats),datasets:[{data:Object.values(cats),
+    backgroundColor:['#8b5cf6','#f43f8e','#f59e0b','#10b981','#38bdf8','#a78bfa'],
+    borderWidth:3,borderColor:'#16122a',hoverOffset:7}]},
+  options:{responsive:false,plugins:{legend:{position:'right',labels:{boxWidth:10,padding:8,font:{size:10},color:'#a098cc'}},tooltip:{...tip}},animation:{duration:900}}
+});
+
+// ── PROGRESS BARS ──────────────────────────
+const PROGS=[
+  {n:'Precisión IA (meta 95%)',key:'ia',u:'%',c:'#f59e0b'},
+  {n:'Presupuesto (de 100 UF)',key:'budget',u:' UF',c:'#8b5cf6'},
+  {n:'Avance cronograma',key:'prog',u:'%',c:'#38bdf8'},
+  {n:'Uptime red colegio',key:'net',u:'%',c:'#10b981'},
+  {n:'Patentes registradas',key:'bd',u:'%',c:'#38bdf8'},
+  {n:'Apoderados informados',key:'legal',u:'%',c:'#f43f8e'},
+];
+const state={paused:false,incident:false,recovery:false,speed:1500,ia:72,budget:32,net:88,bd:45,legal:0,prog:25};
+function renderProgs(){
+  document.getElementById('plist').innerHTML=PROGS.map(p=>{
+    const v=state[p.key];const bar=p.key==='budget'?Math.min(v,100):v;
+    return`<div><div class="prow-top"><div class="pname">${p.n}</div><div class="pval">${v}${p.u}</div></div>
+    <div class="pbar"><div class="pfill" style="width:${bar}%;background:${p.c}"></div></div></div>`;
+  }).join('');
+}
+renderProgs();
+
+// ── MATRIX ─────────────────────────────────
+(()=>{
+  const pL=['Muy alta','Alta','Media','Baja','Muy baja'];
+  const iL=['Muy bajo','Bajo','Medio','Alto','Muy alto'];
+  function zn(p,i){const m=p*i;if(m>=15)return'z5';if(m>=12)return'z4';if(m>=8)return'z3';if(m>=4)return'z2';return'z1'}
+  function dc(mag){if(mag>=12)return'dr';if(mag>=6)return'do';return'dg'}
+  let rows='';
+  for(let p=5;p>=1;p--){
+    let cells='';
+    for(let i=1;i<=5;i++){
+      const m=p*i,here=R.filter(r=>r.prob===p&&r.imp===i);
+      cells+=`<div class="mxc ${zn(p,i)}"><div class="mmag">${m}</div>${here.map(r=>`<div class="mxd ${dc(r.mag)}" onclick="showDp('${r.id}')" title="${r.id}: ${r.name}">${r.id.replace('R-','')}</div>`).join('')}</div>`;
+    }
+    rows+=`<div style="display:grid;grid-template-columns:64px repeat(5,1fr);gap:4px;margin-bottom:4px">
+      <div style="display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:var(--ink3)">${pL[5-p]}</div>
+      ${cells}
+    </div>`;
+  }
+  document.getElementById('mxFull').innerHTML=rows;
+  document.getElementById('mxXlbls').innerHTML=`<div style="display:grid;grid-template-columns:64px repeat(5,1fr);gap:4px">
+    <div></div>${iL.map(l=>`<div style="text-align:center;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:var(--ink3);padding-top:3px">${l}</div>`).join('')}
+  </div>`;
+})();
+
+let selDp=null;
+function showDp(id){
+  if(selDp===id){document.getElementById('matDp').innerHTML='<div class="dp-empty">Selecciona un riesgo para ver el plan completo</div>';selDp=null;document.querySelectorAll('.mxd').forEach(d=>{d.style.outline='';d.style.outlineOffset=''});return}
+  selDp=id;
+  document.querySelectorAll('.mxd').forEach(d=>{const n=d.textContent;const rid='R-'+(n.length===1?'0'+n:n);d.style.outline=rid===id?'2px solid #a78bfa':'';d.style.outlineOffset='2px'});
+  const r=R.find(x=>x.id===id);
+  const pC=r.prob>=4?'#f43f8e':r.prob>=3?'#f59e0b':'#10b981';
+  const iC=r.imp>=5?'#f43f8e':r.imp>=4?'#f59e0b':'#10b981';
+  const mC=r.mag>=12?'#f43f8e':r.mag>=6?'#f59e0b':'#10b981';
+  const estS={Mitigar:`background:rgba(139,92,246,.15);color:#a78bfa;border-color:rgba(139,92,246,.3)`,Evitar:`background:rgba(245,158,11,.12);color:#f59e0b;border-color:rgba(245,158,11,.3)`,Transferir:`background:rgba(56,189,248,.12);color:#38bdf8;border-color:rgba(56,189,248,.3)`,Aceptar:`background:rgba(16,185,129,.12);color:#10b981;border-color:rgba(16,185,129,.3)`};
+  document.getElementById('matDp').innerHTML=`
+    <div class="dp-hdr">
+      <div><div class="dp-ey">${r.id} · ${r.cat}</div><div class="dp-name">${r.name}</div></div>
+      <div class="dp-pills">
+        <div class="dp-pill"><div class="dp-pl">Prob</div><div class="dp-pv" style="color:${pC}">${r.prob}/5</div></div>
+        <div class="dp-pill"><div class="dp-pl">Impacto</div><div class="dp-pv" style="color:${iC}">${r.imp}/5</div></div>
+        <div class="dp-pill"><div class="dp-pl">Magnitud</div><div class="dp-pv" style="color:${mC}">${r.mag}</div></div>
+      </div>
+    </div>
+    <div class="dp-body">
+      <div class="dp-col">
+        <div class="dp-sh">Descripción &amp; Mitigaciones</div>
+        <div class="dp-desc">${r.desc}</div>
+        <div style="margin-top:10px">${r.mits.map((m,i)=>{const ci=m.indexOf(':');return`<div class="dp-mit"><div class="dp-mn">M${i+1}</div><div>${m.slice(ci+1).trim()}</div></div>`}).join('')}</div>
+      </div>
+      <div class="dp-col">
+        <div class="dp-sh">Estrategia &amp; Contingencia</div>
+        <div style="margin-bottom:10px"><span style="font-size:11px;color:var(--ink3)">Tipo: </span><span class="stag" style="${estS[r.est]}">${r.est}</span></div>
+        <div class="dp-cont"><div class="dp-ct">Plan de contingencia</div><p>${r.cont}</p></div>
+        <div style="margin-top:12px;padding:10px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;border-radius:50%;background:${r.rcBg};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0">${r.rc}</div>
+          <div><div style="font-size:12px;font-weight:600;color:var(--white)">${r.resp}</div><div style="font-size:10px;color:var(--ink3)">Responsable · ${r.fecha}/2026</div></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── TABLE ───────────────────────────────────
+R.sort((a,b)=>b.mag-a.mag).forEach(r=>{
+  const lv=r.mag>=12?'chr':r.mag>=6?'cho':'chg';
+  const pC=r.prob>=4?'br':r.prob>=3?'bo':'bg';
+  const iC=r.imp>=5?'br':r.imp>=4?'bo':'bg';
+  const tr=document.createElement('tr');
+  tr.onclick=()=>openM(r.id);tr.style.cursor='pointer';
+  tr.innerHTML=`
+    <td><span class="tid">${r.id}</span></td>
+    <td><div class="tname">${r.name}</div><div class="tcat">${r.cat}</div></td>
+    <td style="font-size:11px;color:var(--ink3)">${r.cat.split('·')[0].trim()}</td>
+    <td><span class="bdg ${pC}">${r.pL}</span></td>
+    <td><span class="bdg ${iC}">${r.iL}</span></td>
+    <td><div class="chip ${lv}">${r.mag}</div></td>
+    <td><span class="stag s${r.est}">${r.est}</span></td>
+    <td><div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:22px;border-radius:50%;background:${r.rcBg};display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff">${r.rc}</div><span style="font-size:11px;color:var(--ink2)">${r.resp.split(' ')[0]}</span></div></td>`;
+  document.getElementById('tblBody').appendChild(tr);
+});
+
+// ── LOG ─────────────────────────────────────
+const LOGMSGS=[
+  ['info','Sistema inicializado — Sprint 1 activo — Zona Drop Off en monitoreo'],
+  ['ok','R-06: Proveedor confirmó certificación IP66 para las cámaras'],
+  ['warn','R-13: Precisión IA al 72% — Meta es 95% (RNF-04) — Acción requerida'],
+  ['warn','R-10: Solo 45% de patentes de apoderados registradas en BD'],
+  ['crit','R-08: Circular a apoderados no enviada — Ley 19.628 en riesgo'],
+  ['info','R-04: Presupuesto en 32/100 UF — Bajo control'],
+  ['ok','R-15: Wiki del proyecto actualizada en Google Drive'],
+  ['info','R-11: Red interna del colegio operativa — Uptime 88%'],
+  ['warn','R-05: Cronograma al 25% — Revisar buffer semanal'],
+  ['ok','R-09: Acta de alcance firmada con el colegio'],
+  ['info','R-07: Pedido de cámaras enviado con 3 semanas de anticipación'],
+  ['warn','R-01: Validación Java 8 pendiente con proveedor'],
+  ['ok','R-03: Diseño VLAN aprobado por TI del colegio'],
+  ['crit','R-06: Lluvia detectada — Cámaras en monitoreo extra'],
+  ['warn','R-12: Consulta de apoderados sobre sistema de cámaras'],
+  ['ok','R-10: Se registraron 12 nuevas patentes en la BD'],
+  ['info','R-02: Prueba de rendimiento del servidor programada para Sprint 1'],
+];
+let logIdx=0;
+function addLog(lvl,msg){
+  const box=document.getElementById('logBox');
+  const t=new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+  const m={crit:'lc',warn:'lw',ok:'lo',info:'li'};
+  const t2={crit:'CRIT',warn:'WARN',ok:'OK',info:'INFO'};
+  const row=document.createElement('div');row.className='log-row';
+  row.innerHTML=`<span class="log-t">${t}</span><span class="ltag ${m[lvl]}">${t2[lvl]}</span><span class="log-msg">${msg}</span>`;
+  box.insertBefore(row,box.firstChild);
+  if(box.children.length>25)box.removeChild(box.lastChild);
+}
+LOGMSGS.slice(0,5).forEach(([l,m])=>addLog(l,m));
+
+// ── TOASTS ──────────────────────────────────
+const TOASTS=[
+  {type:'t-rose',icon:'',title:'Riesgo crítico activo — R-06',body:'Alta probabilidad de falla de cámaras por lluvia en Puerto Montt. Verificar IP66.',rid:'R-06',delay:1500,dur:7000},
+  {type:'t-amb',icon:'',title:'Seguimiento requerido — R-13',body:'Precisión IA al 72%. Meta: 95% para cumplir RNF-04. Entrenar modelo con datos locales.',rid:'R-13',delay:8000,dur:7000},
+  {type:'t-rose',icon:'',title:'Acción legal urgente — R-08',body:'0% de apoderados informados. Circular debe enviarse antes del despliegue (Ley 19.628).',rid:'R-08',delay:16000,dur:7000},
+  {type:'t-amb',icon:'',title:'Carga de datos — R-10',body:'Solo 45% de patentes registradas. Completar antes del Sprint 3 para evitar falsos positivos.',rid:'R-10',delay:24000,dur:6000},
+];
+
+function showToast(t){
+  const area=document.getElementById('toastArea');
+  const now=new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+  const el=document.createElement('div');
+  el.className=`toast ${t.type}`;
+  el.innerHTML=`
+    <div class="toast-prog" style="width:100%"></div>
+    <div class="toast-top">
+      <div class="toast-icon">${t.icon}</div>
+      <div class="toast-title">${t.title}</div>
+      <div class="toast-time">${now}</div>
+    </div>
+    <div class="toast-body">${t.body}</div>
+    <div class="toast-rid">${t.rid} →</div>
+  `;
+  el.querySelector('.toast-rid').onclick=(e)=>{e.stopPropagation();openM(t.rid);dismissToast(el)};
+  el.onclick=()=>dismissToast(el);
+  area.appendChild(el);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('in')));
+  const prog=el.querySelector('.toast-prog');
+  prog.style.transition=`width ${t.dur}ms linear`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>prog.style.width='0%'));
+  setTimeout(()=>dismissToast(el),t.dur);
+}
+function dismissToast(el){el.classList.remove('in');el.classList.add('out');setTimeout(()=>el.remove(),280)}
+TOASTS.forEach(t=>setTimeout(()=>showToast(t),t.delay));
+
+// ── LIVE SIMULATION ─────────────────────────
+function rand(a,b){return Math.round(a+Math.random()*(b-a))}
+function clamp(v,a,b){return Math.min(b,Math.max(a,v))}
+let ticker=null;
+
+function tick(){
+  if(state.paused)return;
+  const prev={...state};
+  if(state.incident){
+    state.ia=clamp(state.ia+rand(-3,1),55,95);
+    state.net=clamp(state.net+rand(-8,2),20,99);
+    state.budget=clamp(state.budget+rand(0,1),0,99);
+    document.getElementById('cc-bar').className='card alarm';
+    document.getElementById('cc-mx').className='card alarm';
+  } else {
+    state.ia=clamp(state.ia+rand(-1,2),65,95);
+    state.net=clamp(state.net+rand(-2,3),70,99);
+    state.budget=clamp(state.budget+rand(0,1),0,95);
+    state.bd=clamp(state.bd+rand(0,2),0,100);
+    state.prog=clamp(state.prog+rand(0,1),0,100);
+    document.getElementById('cc-bar').className='card';
+    document.getElementById('cc-mx').className='card';
+  }
+  function upd(id,v,prev,unit){
+    const el=document.getElementById('kv-'+id);if(el)el.textContent=v+unit;
+    const tel=document.getElementById('kt-'+id);if(!tel)return;
+    if(v>prev){tel.textContent='▲ subiendo';tel.className='kpi-trend tu'}
+    else if(v<prev){tel.textContent='▼ bajando';tel.className='kpi-trend td'}
+    else{tel.textContent='● estable';tel.className='kpi-trend ts'}
+  }
+  upd('ia',state.ia,prev.ia,'%');
+  upd('net',state.net,prev.net,'%');
+  upd('budget',state.budget,prev.budget,' UF');
+  upd('bd',state.bd,prev.bd,'%');
+  upd('prog',state.prog,prev.prog,'%');
+  renderProgs();
+  const msg=LOGMSGS[logIdx%LOGMSGS.length];
+  addLog(msg[0],msg[1]);logIdx++;
+}
+function startTick(){if(ticker)clearInterval(ticker);ticker=setInterval(tick,state.speed)}
+startTick();
+
+function togglePause(){
+  state.paused=!state.paused;
+  document.getElementById('btn-pause').textContent=state.paused?'▶ Reanudar':'⏸ Pausar';
+  const st=document.getElementById('sim-st');
+  st.textContent=state.paused?'● PAUSADO':'● SIMULANDO';
+  st.style.color=state.paused?'var(--amb)':'var(--grn)';
+}
+function triggerIncident(){
+  state.incident=true;state.recovery=false;
+  state.net=clamp(state.net-30,15,99);
+  document.getElementById('kv-net').textContent=state.net+'%';
+  document.getElementById('kt-net').textContent='▼ bajando';
+  document.getElementById('kt-net').className='kpi-trend tu';
+  addLog('crit','INCIDENTE — Red del colegio caída · Sistema detenido · Activando LTE de respaldo (R-11)');
+  document.getElementById('sim-st').textContent='● INCIDENTE';
+  document.getElementById('sim-st').style.color='var(--rose)';
+  showToast({type:'t-rose',icon:'',title:'INCIDENTE ACTIVO — R-11',body:'Red del colegio caída. Sistema de cámaras detenido. Activando conexión LTE de respaldo automáticamente.',rid:'R-11',dur:8000});
+}
+function triggerRecovery(){
+  state.incident=false;state.recovery=true;
+  state.net=clamp(state.net+20,50,99);
+  document.getElementById('kv-net').textContent=state.net+'%';
+  addLog('ok','Sistema recuperado — Conexión LTE activa — Zona Drop Off monitoreada');
+  document.getElementById('sim-st').textContent='● RECUPERANDO';
+  document.getElementById('sim-st').style.color='var(--amb)';
+  showToast({type:'t-grn',icon:'',title:'Sistema recuperado',body:'Conexión LTE activa. Zona Drop Off en monitoreo. Revisando mitigación R-11.',rid:'R-11',dur:6000});
+  setTimeout(()=>{state.recovery=false;document.getElementById('sim-st').textContent='● SIMULANDO';document.getElementById('sim-st').style.color='var(--grn)'},8000);
+}
+function changeSpeed(){state.speed=parseInt(document.getElementById('speed').value);startTick()}
+
+// ── MODAL ────────────────────────────────────
+function openM(id){
+  const r=R.find(x=>x.id===id);if(!r)return;
+  const pC=r.prob>=4?'#f43f8e':r.prob>=3?'#f59e0b':'#10b981';
+  const iC=r.imp>=5?'#f43f8e':r.imp>=4?'#f59e0b':'#10b981';
+  const mC=r.mag>=12?'#f43f8e':r.mag>=6?'#f59e0b':'#10b981';
+  const estS={Mitigar:`background:rgba(139,92,246,.15);color:#a78bfa;border-color:rgba(139,92,246,.3)`,Evitar:`background:rgba(245,158,11,.12);color:#f59e0b;border-color:rgba(245,158,11,.3)`,Transferir:`background:rgba(56,189,248,.12);color:#38bdf8;border-color:rgba(56,189,248,.3)`,Aceptar:`background:rgba(16,185,129,.12);color:#10b981;border-color:rgba(16,185,129,.3)`};
+  document.getElementById('mob').innerHTML=`
+    <div class="mo-ey">${r.cat}</div>
+    <div class="mo-name">${r.name}</div>
+    <div class="mo-stats">
+      <div class="mo-st"><div class="mo-sl">Probabilidad</div><div class="mo-sv" style="color:${pC}">${r.prob}/5</div><div class="mo-ss">${r.pL}</div></div>
+      <div class="mo-st"><div class="mo-sl">Impacto</div><div class="mo-sv" style="color:${iC}">${r.imp}/5</div><div class="mo-ss">${r.iL}</div></div>
+      <div class="mo-st"><div class="mo-sl">Magnitud</div><div class="mo-sv" style="color:${mC}">${r.mag}</div><div class="mo-ss" style="color:${mC};font-weight:700">${r.mag>=12?'CRÍTICO':r.mag>=6?'MEDIO':'BAJO'}</div></div>
+    </div>
+    <div class="mo-h">Descripción del riesgo</div>
+    <div class="mo-desc">${r.desc}</div>
+    <div class="mo-h">Plan de mitigación</div>
+    ${r.mits.map((m,i)=>{const ci=m.indexOf(':');return`<div class="mo-mit"><span class="mo-mn">M${i+1}:</span> ${m.slice(ci+1).trim()}</div>`}).join('')}
+    <div class="mo-cont"><div class="mo-ct">${r.est} — Plan de contingencia</div><p>${r.cont}</p></div>
+    <div class="mo-ft">
+      <div style="width:30px;height:30px;border-radius:50%;background:${r.rcBg};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0">${r.rc}</div>
+      <div><div style="font-size:13px;font-weight:600;color:var(--white)">${r.resp}</div><div style="font-size:10px;color:var(--ink3)">Responsable · ${r.fecha}/2026</div></div>
+      <span class="stag" style="margin-left:auto;${estS[r.est]}">${r.est}</span>
+    </div>`;
+  document.getElementById('ov').classList.add('open');document.body.style.overflow='hidden';
+}
+function closeM(){document.getElementById('ov').classList.remove('open');document.body.style.overflow=''}
+function closeMoOut(e){if(e.target===document.getElementById('ov'))closeM()}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+</script>
+</body>
+</html>
