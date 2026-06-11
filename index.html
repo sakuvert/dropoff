@@ -844,11 +844,9 @@ R.sort((a,b)=>b.mag-a.mag).forEach(r=>{
 
 // ── TOASTS ─────────────────────────────────────────────
 const TOASTS=[
-  {type:'t-rose',icon:'⚠',title:'Riesgo crítico · R-06',body:'Alta probabilidad de falla de cámaras por lluvia. Puerto Montt tiene alta pluviometría. Verificar certificación IP66.',rid:'R-06',delay:2000,dur:7000},
-  {type:'t-amb',icon:'📊',title:'KPI bajo la meta · R-13',body:'Precisión IA al 72%. Meta RNF-04: 95%. Entrenar modelo con imágenes de patentes chilenas en lluvia.',rid:'R-13',delay:10000,dur:7000},
-  {type:'t-rose',icon:'⚖',title:'Alerta legal · R-08',body:'0% apoderados informados. Circular Ley 19.628 debe enviarse antes del despliegue del sistema.',rid:'R-08',delay:19000,dur:7000},
-  {type:'t-amb',icon:'🗄',title:'BD incompleta · R-10',body:'Solo 45% de patentes registradas. Completar antes del Sprint 3 para evitar falsos positivos.',rid:'R-10',delay:28000,dur:7000},
-  {type:'t-pur',icon:'📅',title:'Alerta cronograma · R-05',body:'Monte Carlo: 100% probabilidad de retraso. Duración esperada: 54,5 días vs límite de 41 días hábiles.',rid:'R-05',delay:37000,dur:7000},
+  {type:'t-rose',icon:'⚠',title:'Riesgo crítico · R-06',body:'Alta probabilidad de falla de cámaras por lluvia. Puerto Montt tiene alta pluviometría. Verificar IP66.',rid:'R-06',delay:3000,dur:8000},
+  {type:'t-amb',icon:'📊',title:'KPI bajo la meta · R-13',body:'Precisión IA al 72%. Meta RNF-04: 95%. Entrenar modelo con imágenes de patentes locales.',rid:'R-13',delay:60000,dur:8000},
+  {type:'t-rose',icon:'⚖',title:'Alerta legal · R-08',body:'0% apoderados informados. Circular Ley 19.628 requerida antes del despliegue.',rid:'R-08',delay:120000,dur:8000},
 ];
 function showToast(t){
   const area=document.getElementById('toastArea');
