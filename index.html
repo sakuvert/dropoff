@@ -73,20 +73,6 @@ body{background:var(--bg);font-family:'Inter',sans-serif;color:var(--ink);font-s
 .page{max-width:1380px;margin:0 auto;padding:22px 32px 60px}
 
 /* ── CONTROLS ── */
-.ctrl-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:22px;padding:14px 18px;background:var(--card);border:1px solid var(--bg3);border-radius:var(--r);box-shadow:var(--s1)}
-.cbtn{padding:8px 18px;border-radius:8px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;border:1px solid;transition:all .18s;letter-spacing:.1px}
-.cb-pause{background:var(--pur2);border-color:var(--pur3);color:var(--pur)}
-.cb-pause:hover{background:var(--pur3);transform:translateY(-1px)}
-.cb-incident{background:var(--rose2);border-color:var(--rose3);color:var(--rose)}
-.cb-incident:hover{background:var(--rose3);transform:translateY(-1px)}
-.cb-recovery{background:var(--grn2);border-color:var(--grn3);color:var(--grn)}
-.cb-recovery:hover{background:var(--grn3);transform:translateY(-1px)}
-.spd{display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:8px;background:var(--bg2);border:1px solid var(--bg3)}
-.spd label{font-size:11px;color:var(--ink3);font-family:'JetBrains Mono',monospace;font-weight:600}
-.spd select{background:none;border:none;outline:none;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--pur);cursor:pointer}
-#sim-st{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:1px;margin-left:4px}
-.ctrl-hint{margin-left:auto;font-size:11px;color:var(--ink4);font-style:italic}
-
 /* ── SECTION ── */
 .sec{display:flex;align-items:center;gap:12px;margin:0 0 13px}
 .sec-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink3);white-space:nowrap}
@@ -365,22 +351,6 @@ td{padding:10px 12px;font-size:12px;vertical-align:middle}
 </div>
 
 <div class="page">
-
-<!-- CONTROLS -->
-<div class="ctrl-bar ani">
-  <button class="cbtn cb-pause" id="btn-pause" onclick="togglePause()">⏸ Pausar simulación</button>
-  <button class="cbtn cb-incident" onclick="triggerIncident()">⚡ Simular incidente</button>
-  <button class="cbtn cb-recovery" onclick="triggerRecovery()">✓ Simular recuperación</button>
-  <div class="spd">
-    <label>Velocidad:</label>
-    <select id="speed" onchange="changeSpeed()">
-      <option value="3000">Lenta (3s)</option>
-      <option value="1500" selected>Normal (1.5s)</option>
-      <option value="700">Rápida (0.7s)</option>
-    </select>
-  </div>
-  <span id="sim-st" style="color:var(--grn)">● SIMULANDO</span>
-  <span class="ctrl-hint">Clic en cualquier elemento del dashboard para ver el plan completo</span>
 </div>
 
 <!-- ══ KPIs ══ -->
@@ -940,35 +910,7 @@ function tick(){
 function startTick(){if(ticker)clearInterval(ticker);ticker=setInterval(tick,S.speed)}
 startTick();
 
-// ── CONTROLS ───────────────────────────────────────────
-function togglePause(){
-  S.paused=!S.paused;
-  document.getElementById('btn-pause').textContent=S.paused?'▶ Reanudar':'⏸ Pausar simulación';
-  const st=document.getElementById('sim-st');
-  st.textContent=S.paused?'● PAUSADO':'● SIMULANDO';
-  st.style.color=S.paused?'var(--amb)':'var(--grn)';
-}
-function triggerIncident(){
-  S.incident=true;S.recovery=false;
-  S.net=clamp(S.net-30,15,99);S.cam1=clamp(S.cam1-20,40,99);S.caidas++;
-  S.sync+=rand(5,15);
-  document.getElementById('sim-st').textContent='● INCIDENTE';
-  document.getElementById('sim-st').style.color='var(--rose)';
-  addLog('crit','⚡ INCIDENTE — Red del colegio caída — Sistema detenido — Activando LTE de respaldo automáticamente (R-11)');
-  showToast({type:'t-rose',icon:'⚡',title:'INCIDENTE ACTIVO · R-11',body:'Red del colegio caída. Sistema detenido. LTE de respaldo activando. Datos guardados localmente.',rid:'R-11',dur:8000});
 
-}
-function triggerRecovery(){
-  S.incident=false;S.recovery=true;
-  S.net=clamp(S.net+20,50,99);S.cam1=clamp(S.cam1+15,70,99);
-  document.getElementById('sim-st').textContent='● RECUPERANDO';
-  document.getElementById('sim-st').style.color='var(--amb)';
-  addLog('ok','✓ Sistema recuperado — LTE activo — Sincronizando datos locales — Zona Drop Off monitoreada (R-11)');
-  showToast({type:'t-grn',icon:'✓',title:'Sistema recuperado · R-11',body:'Conexión LTE activa. Datos locales sincronizados. Sistema Drop Off en operación normal.',rid:'R-11',dur:7000});
-
-  setTimeout(()=>{S.recovery=false;document.getElementById('sim-st').textContent='● SIMULANDO';document.getElementById('sim-st').style.color='var(--grn)'},9000);
-}
-function changeSpeed(){S.speed=parseInt(document.getElementById('speed').value);startTick()}
 
 // ── MODAL ───────────────────────────────────────────────
 const estSM={Mitigar:`background:var(--pur2);color:var(--pur);border-color:var(--pur3)`,Evitar:`background:var(--amb2);color:var(--amb);border-color:var(--amb3)`,Transferir:`background:var(--sky2);color:var(--sky);border-color:var(--sky3)`,Aceptar:`background:var(--grn2);color:var(--grn);border-color:var(--grn3)`};
