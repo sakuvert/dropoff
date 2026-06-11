@@ -955,7 +955,8 @@ function triggerIncident(){
   document.getElementById('sim-st').textContent='● INCIDENTE';
   document.getElementById('sim-st').style.color='var(--rose)';
   addLog('crit','⚡ INCIDENTE — Red del colegio caída — Sistema detenido — Activando LTE de respaldo automáticamente (R-11)');
-  showToast({type:'t-rose',icon:'⚡',title:'INCIDENTE ACTIVO · R-11',body:'Red del colegio caída. Sistema de cámaras detenido. LTE de respaldo activando. Datos se guardan localmente.',rid:'R-11',dur:9000,delay:0});
+  showToast({type:'t-rose',icon:'⚡',title:'INCIDENTE ACTIVO · R-11',body:'Red del colegio caída. Sistema detenido. LTE de respaldo activando. Datos guardados localmente.',rid:'R-11',dur:8000});
+
 }
 function triggerRecovery(){
   S.incident=false;S.recovery=true;
@@ -963,7 +964,8 @@ function triggerRecovery(){
   document.getElementById('sim-st').textContent='● RECUPERANDO';
   document.getElementById('sim-st').style.color='var(--amb)';
   addLog('ok','✓ Sistema recuperado — LTE activo — Sincronizando datos locales — Zona Drop Off monitoreada (R-11)');
-  showToast({type:'t-grn',icon:'✓',title:'Sistema recuperado · R-11',body:'Conexión LTE activa. Datos locales sincronizados. Sistema Drop Off en operación normal.',rid:'R-11',dur:7000,delay:0});
+  showToast({type:'t-grn',icon:'✓',title:'Sistema recuperado · R-11',body:'Conexión LTE activa. Datos locales sincronizados. Sistema Drop Off en operación normal.',rid:'R-11',dur:7000});
+
   setTimeout(()=>{S.recovery=false;document.getElementById('sim-st').textContent='● SIMULANDO';document.getElementById('sim-st').style.color='var(--grn)'},9000);
 }
 function changeSpeed(){S.speed=parseInt(document.getElementById('speed').value);startTick()}
